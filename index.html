@@ -74,6 +74,13 @@
       font-weight: bold;
       font-size: 16px;
     }
+
+    /* update - hover css */
+    .sidebar-nav li.active > a[href*="?id=_"] {
+      color: var(--sidebar-nav-link-color--active, #0374B5);
+      font-weight: var(--sidebar-nav-link-font-weight--active, bold);
+      border-left-color: var(--sidebar-nav-link-border-color--active, #0374B5);
+    }
   </style>
   </head>
 
@@ -674,6 +681,9 @@
                 ].join('\n\n');
               }
 
+              // update - Remove HTML comments before rendering
+              html = html.replace(/<!--[\s\S]*?-->/g, '');
+            
               var version = new URLSearchParams(window.location.search).get('version');
               fileName = vm.route.file
               .replace(getGitLinkRepoURL() + '/refs/heads/', '');
@@ -810,6 +820,33 @@
                   parentDiv.replaceChild(wrapperDiv, iframe);
                   wrapperDiv.appendChild(iframe);
                 }
+              });
+              // update - _ prefix on all heading IDs
+              const headings = document.querySelectorAll('.markdown-section h1[id], .markdown-section h2[id], .markdown-section h3[id], .markdown-section h4[id], .markdown-section h5[id], .markdown-section h6[id]');
+              headings.forEach(function(heading) {
+                if (heading.id && !heading.id.startsWith('_')) {
+                  heading.id = '_' + heading.id;
+                }
+              });
+              // update - _ prefix on sidebar auto-generated TOC links only
+              const sidebarLinks = document.querySelectorAll('.sidebar-nav a[href*="?id="]');
+              sidebarLinks.forEach(function(link) {
+                var href = link.getAttribute('href');
+                if (href && href.includes('?id=') && !href.includes('?id=_')) {
+                  link.setAttribute('href', href.replace('?id=', '?id=_'));
+                }
+              });
+              // update - Handle active state for TOC links
+              const tocLinks = document.querySelectorAll('.sidebar-nav a[href*="?id=_"]');
+              tocLinks.forEach(function(link) {
+                link.addEventListener('click', function() {
+                  // Remove active class from all TOC links
+                  tocLinks.forEach(function(l) {
+                    l.parentElement.classList.remove('active');
+                  });
+                  // Add active class to clicked link
+                  this.parentElement.classList.add('active');
+                });
               });
           });
 
