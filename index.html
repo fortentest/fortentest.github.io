@@ -828,6 +828,18 @@
                   heading.id = '_' + heading.id;
                 }
               });
+              // update - After fixing IDs, re-scroll to anchor if present
+              var hash = window.location.hash;
+              var idMatch = hash.match(/[?&]id=([^&]*)/);
+              if (idMatch) {
+                var targetId = decodeURIComponent(idMatch[1]);
+                var target = document.getElementById(targetId);
+                if (target) {
+                  setTimeout(function() {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }
+              }
               // update - _ prefix on sidebar auto-generated TOC links only
               const sidebarLinks = document.querySelectorAll('.sidebar-nav a[href*="?id="]');
               sidebarLinks.forEach(function(link) {
